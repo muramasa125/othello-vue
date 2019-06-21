@@ -1,0 +1,150 @@
+<html>
+  <head>
+    <title>othello</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <div id="board">
+        <div v-for="(records, x) in board" :key="x" class="record">
+          <div v-for="(cell, y) in records" :key="y" class="cell" v-on:click="checkStone(x,y,true)" v-if="(x >= 1 && x < 9) && (y >= 1 && y < 9)">
+            <div v-if="cell === 1">
+              <img src="black.png" alt="●">
+            </div>
+            <div v-else-if="cell === 2">
+              <img src="white.png" alt="○">  
+            </div>
+            <div v-else>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>{{ score }}</div>
+      <div>{{ message }}</div>
+    </div>
+    <script>
+      var app = new Vue({
+        el: '#app',
+        data: {
+          board: [],
+          turn: 0,
+          message:'',
+          score: ''
+        },
+        computed: {
+          nowColor: function() {
+            return this.turn === 1 ? 'Black' : 'White'
+          }
+        },
+        methods: {
+          checkStone: function (x, y, flip) {
+            // すでに石がある場所はNG
+            if (this.board[x][y] != 0) {
+              return false
+            }
+            let reverse = 0
+            for(let i=-1; i<=1; i++) {
+              for(let j=-1; j<=1; j++) {
+                // 8方向に対して石が置けるか検査
+                if (i===0&&j===0) {continue} // 自分の場所はスキップ
+                let _x = x + i,_y = y + j,n=0
+                while(this.board[_x][_y] === 3 - this.turn) {n++;_x+=i;_y+=j} // 相手の色が続く間ループ
+                // 自分の色が相手を挟んでいればひっくり返せる
+                if (n>0 && this.board[_x][_y] === this.turn) {
+                  reverse += n
+                  // ひっくり返す
+                  if (flip) {
+                    let fx=x+i,fy=y+j
+                    while(this.board[fx][fy]===3-this.turn){
+                      this.board[fx].splice(fy,1,this.turn)
+                      fx += i
+                      fy += j
+                    }
+                  }
+                }
+              }
+            }
+            if (flip&&reverse) {
+              this.board[x].splice(y,1,this.turn)
+              // 配列更新のイベント強制発火
+              this.board.splice()
+              this.changeTurn(x, y)
+            }
+            return reverse
+          },
+          checkFlip: function () {
+            for(let i=1; i<9; i++) {
+              for(let j=1; j<9; j++) {
+                if (this.checkStone(i,j,false)) {
+                  return true
+                }
+              }
+            }
+            return false
+          },
+          changeTurn: function (x, y) {
+            this.turn = 3 - this.turn
+            // パスチェック
+            if (this.checkFlip()) {
+              this.message = this.nowColor + "'s turn"
+              return
+            }
+            let passColor = this.nowColor
+            this.turn = 3 - this.turn
+            // パスチェック２回目
+            if (this.changeFlip()) {
+              this.message = passColor + ' pass '
+              this.message += this.nowColor + "'s turn"
+              return
+            }
+            // 勝敗判定
+            let b=0,w=0
+            this.board.forEach(record => {
+              record.forEach(cell => {
+                if (cell === 1) {b++}
+                if (cell === 2) {w++}
+              })
+            })
+            this.score = 'Black: ' + b +  ' White: ' + w 
+            if (b=w) {
+              this.message = "DROW"
+              return
+            }
+            this.message = b > 0 ? 'Black':'White' + " won"
+          },
+          creatBoard: function () {
+            // 盤面作成（10*10）
+            for(let i=0; i<10; i++) {
+              this.board[i] = []
+              for(let j=0; j<10; j++) {
+                this.board[i].splice(j,1,0)
+              }
+            }
+            // 初期配置
+            this.board[4][5] = 1
+            this.board[5][4] = 1
+            this.board[4][4] = 2
+            this.board[5][5] = 2            
+          }
+        },
+        created: function () {
+          this.creatBoard()
+          this.turn = 2 // とりあえずの白
+          this.changeTurn() 
+        }
+      })
+    </script>
+  </body>
+  <style>
+    .record {
+      float: left;
+    }
+    .cell {
+      clear: both;
+      border: 1px solid black;
+      width: 33px;
+      height: 33px;
+      background-color: #00ee00;
+    }
+  </style>
+</html>
