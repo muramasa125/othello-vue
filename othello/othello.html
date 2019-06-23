@@ -8,16 +8,9 @@
       <div id="board">
         <div v-for="(records, x) in board" :key="x" class="record">
           <div v-for="(cell, y) in records" :key="y" class="cell" v-on:click="checkStone(x,y,true)" v-if="(x >= 1 && x < 9) && (y >= 1 && y < 9)">
-            <div v-if="cell === 1">
-              <!--<img src="black.png" alt="●">-->
-              <div class="black-stone"></div>
-            </div>
-            <div v-else-if="cell === 2">
-              <!--<img src="white.png" alt="○">-->
-              <div class="white-stone"></div>
-            </div>
-            <div v-else>
-            </div>
+            <div v-if="cell === 1" class="black-stone"></div>
+            <div v-else-if="cell === 2" class="white-stone"></div>
+            <div v-else></div>
           </div>
         </div>
       </div>
