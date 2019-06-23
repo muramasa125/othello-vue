@@ -1,21 +1,32 @@
 <html>
   <head>
-    <title>othello</title>
+    <title>Othello-vue</title>
+    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+    <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es2015%2CMutationObserver" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
   </head>
   <body>
     <div id="app">
-      <div id="board">
-        <div v-for="(records, x) in board" :key="x" class="record">
-          <div v-for="(cell, y) in records" :key="y" class="cell" v-on:click="checkStone(x,y,true)" v-if="(x >= 1 && x < 9) && (y >= 1 && y < 9)">
-            <div v-if="cell === 1" class="black-stone"></div>
-            <div v-else-if="cell === 2" class="white-stone"></div>
-            <div v-else></div>
+      <b-navbar toggleable="sm" type="dark" variant="dark">
+        <b-navbar-brand href="#">Othello-vue</b-navbar-brand>
+      </b-navbar>
+      <b-container>
+        <div id="board" class="mx-auto">
+          <div v-for="(records, x) in board" :key="x" class="record">
+            <div v-for="(cell, y) in records" :key="y" class="cell" v-on:click="checkStone(x,y,true)" v-if="(x > 0 && x < 9) && (y > 0 && y < 9)">
+              <div v-if="cell === 1" class="black-stone"></div>
+              <div v-if="cell === 2" class="white-stone"></div>
+            </div>
           </div>
         </div>
-      </div>
-      <div>{{ score }}</div>
-      <div>{{ message }}</div>
+        <div class="info">
+          <div>{{ score }}</div>
+          <div>{{ message }}</div>
+          <div>{{ timer }}</div>
+        </div>
+      </b-container>
     </div>
     <script>
       var app = new Vue({
@@ -24,11 +35,16 @@
           board: [],
           turn: 0,
           message:'',
-          score: ''
+          score: '',
+          time: 0
         },
         computed: {
           nowColor: function() {
             return this.turn === 1 ? 'Black' : 'White'
+          },
+          timer: function() {
+            this.time = 0
+
           }
         },
         methods: {
@@ -60,6 +76,7 @@
               }
             }
             if (flip&&reverse) {
+              // ひっくり返しが成功したら石を置く
               this.board[x].splice(y,1,this.turn)
               // 配列更新のイベント強制発火
               this.board.splice()
@@ -105,7 +122,7 @@
               this.message = "DROW"
               return
             }
-            this.message = (b > 0 ? 'Black':'White') + ' won'
+            this.message = (b > w ? 'Black':'White') + ' won'
           },
           creatBoard: function () {
             // 盤面作成（10*10）
@@ -138,21 +155,24 @@
       cursor: pointer;
       clear: both;
       border: 1px solid black;
-      width: 33px;
-      height: 33px;
+      width: 3rem;
+      height: 3rem;
       background-color: #00ee00;
     }
     .black-stone {
-      width: 33px;
-      height: 33px;
+      width: 2.9rem;
+      height: 2.9rem;
       background-color: black;
       border-radius: 50%;
     }
     .white-stone {
-      width: 33px;
-      height: 33px;
+      width: 2.9rem;
+      height: 2.9rem;
       background-color: white;
       border-radius: 50%;
+    }
+    .info {
+      clear: both;
     }
   </style>
 </html>
