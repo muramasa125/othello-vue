@@ -9,10 +9,12 @@
         <div v-for="(records, x) in board" :key="x" class="record">
           <div v-for="(cell, y) in records" :key="y" class="cell" v-on:click="checkStone(x,y,true)" v-if="(x >= 1 && x < 9) && (y >= 1 && y < 9)">
             <div v-if="cell === 1">
-              <img src="black.png" alt="●">
+              <!--<img src="black.png" alt="●">-->
+              <div class="black-stone"></div>
             </div>
             <div v-else-if="cell === 2">
-              <img src="white.png" alt="○">  
+              <!--<img src="white.png" alt="○">-->
+              <div class="white-stone"></div>
             </div>
             <div v-else>
             </div>
@@ -140,11 +142,24 @@
       float: left;
     }
     .cell {
+      cursor: pointer;
       clear: both;
       border: 1px solid black;
       width: 33px;
       height: 33px;
       background-color: #00ee00;
+    }
+    .black-stone {
+      width: 33px;
+      height: 33px;
+      background-color: black;
+      border-radius: 50%;
+    }
+    .white-stone {
+      width: 33px;
+      height: 33px;
+      background-color: white;
+      border-radius: 50%;
     }
   </style>
 </html>
