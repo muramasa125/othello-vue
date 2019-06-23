@@ -92,7 +92,7 @@
             let passColor = this.nowColor
             this.turn = 3 - this.turn
             // パスチェック２回目
-            if (this.changeFlip()) {
+            if (this.checkFlip()) {
               this.message = passColor + ' pass '
               this.message += this.nowColor + "'s turn"
               return
@@ -106,11 +106,11 @@
               })
             })
             this.score = 'Black: ' + b +  ' White: ' + w 
-            if (b=w) {
+            if (b===w) {
               this.message = "DROW"
               return
             }
-            this.message = b > 0 ? 'Black':'White' + " won"
+            this.message = (b > 0 ? 'Black':'White') + ' won'
           },
           creatBoard: function () {
             // 盤面作成（10*10）
