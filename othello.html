@@ -11,6 +11,20 @@
     <div id="app">
       <b-navbar toggleable="sm" type="dark" variant="dark">
         <b-navbar-brand href="#">Othello-vue</b-navbar-brand>
+        <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
+        <b-collapse id="nav-collapse" is-nav>
+          <b-navbar-nav>
+            <b-nav-item-dropdown :text="dispColor">
+              <b-dropdown-item href="#">Black</b-dropdown-item>
+              <b-dropdown-item href="#">White</b-dropdown-item>
+            </b-nav-item-dropdown>
+            <b-nav-item-dropdown v-bind:text="dispCOMLevel">
+                <b-dropdown-item href="#">1</b-dropdown-item>
+                <b-dropdown-item href="#">2</b-dropdown-item>
+                <b-dropdown-item href="#">3</b-dropdown-item>
+            </b-nav-item-dropdown>
+          </b-navbar-nav>
+        </b-collapse>
       </b-navbar>
       <b-container>
         <div id="board" class="mx-auto">
@@ -36,13 +50,24 @@
           turn: 0,
           message:'',
           score: '',
+          color: 1,
+          comLevel: 1,
           time: 0
         },
         computed: {
-          nowColor: function() {
+          dispColor: function () {
+            return 'Color: ' + this.yourColor
+          },
+          yourColor: function () {
+            return this.color === 1 ? 'Black' : 'White'
+          },
+          nowColor: function () {
             return this.turn === 1 ? 'Black' : 'White'
           },
-          timer: function() {
+          dispCOMLevel: function () {
+            return 'COMLevel: ' + this.comLevel
+          },
+          timer: function () {
             this.time = 0
 
           }
@@ -137,6 +162,31 @@
             this.board[5][4] = 1
             this.board[4][4] = 2
             this.board[5][5] = 2            
+          },
+          flipCOM: function () {
+            let r = this.checkCOMFlip()
+            this.checkStone(r['x'],r['y'],true)
+          },
+          checkCOMFlip: function () {
+            // 配置可能な石の状態を取得
+            let results = []
+            for(let i=1; i<9; i++) {
+              for(let j=1; j<9; j++) {
+                let result = this.checkStone(i,j,false)
+                if (this.checkStone(i,j,false)) {
+                  results.push({ 'x': i, 'y': j, 'stone': result})
+                }
+              }
+            }
+            let min = {}
+            results.forEach(r => {
+              if (r['stone'] < min['stone']) {
+                min = r
+              }
+            })
+            if (this.comLevel === 1) {
+              return min
+            }
           }
         },
         created: function () {
@@ -158,6 +208,9 @@
       width: 3rem;
       height: 3rem;
       background-color: #00ee00;
+    }
+    .cell:hover {
+      background-color: aqua;
     }
     .black-stone {
       width: 2.9rem;
