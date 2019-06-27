@@ -15,13 +15,13 @@
         <b-collapse id="nav-collapse" is-nav>
           <b-navbar-nav>
             <b-nav-item-dropdown :text="dispColor">
-              <b-dropdown-item href="#">Black</b-dropdown-item>
-              <b-dropdown-item href="#">White</b-dropdown-item>
+              <b-dropdown-item href="#" v-on:click="changeColor(1)">Black</b-dropdown-item>
+              <b-dropdown-item href="#" v-on:click="changeColor(2)">White</b-dropdown-item>
             </b-nav-item-dropdown>
             <b-nav-item-dropdown v-bind:text="dispCOMLevel">
-                <b-dropdown-item href="#">1</b-dropdown-item>
-                <b-dropdown-item href="#">2</b-dropdown-item>
-                <b-dropdown-item href="#">3</b-dropdown-item>
+                <b-dropdown-item href="#" v-on:click="changeCOMLevel(1)">1</b-dropdown-item>
+                <b-dropdown-item href="#" disabled>2</b-dropdown-item>
+                <b-dropdown-item href="#" disabled>3</b-dropdown-item>
             </b-nav-item-dropdown>
           </b-navbar-nav>
         </b-collapse>
@@ -37,7 +37,7 @@
         </div>
         <div class="info">
           <div>{{ score }}</div>
-          <div>{{ message }}</div>
+          <div class="message">{{ message }}</div>
           <div>{{ timer }}</div>
         </div>
       </b-container>
@@ -52,7 +52,13 @@
           score: '',
           color: 1,
           comLevel: 1,
-          time: 0
+          time: 0,
+          started: false,
+          putable: false
+        },
+        watch: {
+          'turn': function () {
+          }
         },
         computed: {
           dispColor: function () {
@@ -69,10 +75,23 @@
           },
           timer: function () {
             this.time = 0
-
           }
         },
         methods: {
+          changeColor: function (color) {
+            if (this.started) {
+              alert("Game is started. Can't change color")
+              return
+            }
+            this.color = color
+          },
+          changeCOMLevel: function (level) {
+            if (this.started) {
+              alert("Game is started. Can't change color")
+              return
+            }
+            this.comLevel = level
+          },
           checkStone: function (x, y, flip) {
             // すでに石がある場所はNG
             if (this.board[x][y] != 0) {
@@ -103,9 +122,22 @@
             if (flip&&reverse) {
               // ひっくり返しが成功したら石を置く
               this.board[x].splice(y,1,this.turn)
+              this.changeTurn()
+              // COM動作
+              if (this.turn === this.color) {
+                this.message += '\nyour turn'
+              } else {
+                _this = this
+                setTimeout(
+                  function () {
+                    _this.flipCOM()
+                  },
+                  1000
+                )
+              }
               // 配列更新のイベント強制発火
               this.board.splice()
-              this.changeTurn(x, y)
+              this.started =true
             }
             return reverse
           },
@@ -119,7 +151,7 @@
             }
             return false
           },
-          changeTurn: function (x, y) {
+          changeTurn: function () {
             this.turn = 3 - this.turn
             // パスチェック
             if (this.checkFlip()) {
@@ -165,7 +197,9 @@
           },
           flipCOM: function () {
             let r = this.checkCOMFlip()
-            this.checkStone(r['x'],r['y'],true)
+            if (r) {
+              this.checkStone(r['x'],r['y'],true)
+            }
           },
           checkCOMFlip: function () {
             // 配置可能な石の状態を取得
@@ -173,20 +207,16 @@
             for(let i=1; i<9; i++) {
               for(let j=1; j<9; j++) {
                 let result = this.checkStone(i,j,false)
-                if (this.checkStone(i,j,false)) {
+                if (result) {
                   results.push({ 'x': i, 'y': j, 'stone': result})
                 }
               }
             }
-            let min = {}
-            results.forEach(r => {
-              if (r['stone'] < min['stone']) {
-                min = r
-              }
+            let min = {'stone':0}
+            results.forEach(r => {              
+              if (min['stone'] === 0 || (r['stone'] < min['stone'])) { min = r }
             })
-            if (this.comLevel === 1) {
-              return min
-            }
+            if (this.comLevel === 1) { return min }
           }
         },
         created: function () {
@@ -195,6 +225,73 @@
           this.changeTurn() 
         }
       })
+      // global const
+      const boardWeight = [
+        {'x': 1, 'y': 1, 'weight': 2 },
+        {'x': 1, 'y': 2, 'weight': 4 },
+        {'x': 1, 'y': 3, 'weight': 3 },
+        {'x': 1, 'y': 4, 'weight': 3 },
+        {'x': 1, 'y': 5, 'weight': 3 },
+        {'x': 1, 'y': 6, 'weight': 3 },
+        {'x': 1, 'y': 7, 'weight': 4 },
+        {'x': 1, 'y': 8, 'weight': 2 },
+        {'x': 2, 'y': 1, 'weight': 4 },
+        {'x': 2, 'y': 2, 'weight': 4 },
+        {'x': 2, 'y': 3, 'weight': 3 },
+        {'x': 2, 'y': 4, 'weight': 3 },
+        {'x': 2, 'y': 5, 'weight': 3 },
+        {'x': 2, 'y': 6, 'weight': 3 },
+        {'x': 2, 'y': 7, 'weight': 4 },
+        {'x': 2, 'y': 8, 'weight': 4 },
+        {'x': 3, 'y': 1, 'weight': 3 },
+        {'x': 3, 'y': 2, 'weight': 3 },
+        {'x': 3, 'y': 3, 'weight': 1 },
+        {'x': 3, 'y': 4, 'weight': 1 },
+        {'x': 3, 'y': 5, 'weight': 1 },
+        {'x': 3, 'y': 6, 'weight': 1 },
+        {'x': 3, 'y': 7, 'weight': 3 },
+        {'x': 3, 'y': 8, 'weight': 3 },
+        {'x': 4, 'y': 1, 'weight': 3 },
+        {'x': 4, 'y': 2, 'weight': 3 },
+        {'x': 4, 'y': 3, 'weight': 1 },
+        {'x': 4, 'y': 4, 'weight': 1 },
+        {'x': 4, 'y': 5, 'weight': 1 },
+        {'x': 4, 'y': 6, 'weight': 1 },
+        {'x': 4, 'y': 7, 'weight': 3 },
+        {'x': 4, 'y': 8, 'weight': 3 },
+        {'x': 5, 'y': 1, 'weight': 3 },
+        {'x': 5, 'y': 2, 'weight': 3 },
+        {'x': 5, 'y': 3, 'weight': 1 },
+        {'x': 5, 'y': 4, 'weight': 1 },
+        {'x': 5, 'y': 5, 'weight': 1 },
+        {'x': 5, 'y': 6, 'weight': 1 },
+        {'x': 5, 'y': 7, 'weight': 3 },
+        {'x': 5, 'y': 8, 'weight': 3 },
+        {'x': 6, 'y': 1, 'weight': 3 },
+        {'x': 6, 'y': 2, 'weight': 3 },
+        {'x': 6, 'y': 3, 'weight': 1 },
+        {'x': 6, 'y': 4, 'weight': 1 },
+        {'x': 6, 'y': 5, 'weight': 1 },
+        {'x': 6, 'y': 6, 'weight': 1 },
+        {'x': 6, 'y': 7, 'weight': 3 },
+        {'x': 6, 'y': 8, 'weight': 3 },
+        {'x': 7, 'y': 1, 'weight': 4 },
+        {'x': 7, 'y': 2, 'weight': 4 },
+        {'x': 7, 'y': 3, 'weight': 3 },
+        {'x': 7, 'y': 4, 'weight': 3 },
+        {'x': 7, 'y': 5, 'weight': 3 },
+        {'x': 7, 'y': 6, 'weight': 3 },
+        {'x': 7, 'y': 7, 'weight': 4 },
+        {'x': 7, 'y': 8, 'weight': 4 },
+        {'x': 8, 'y': 1, 'weight': 2 },
+        {'x': 8, 'y': 2, 'weight': 4 },
+        {'x': 8, 'y': 3, 'weight': 3 },
+        {'x': 8, 'y': 4, 'weight': 3 },
+        {'x': 8, 'y': 5, 'weight': 3 },
+        {'x': 8, 'y': 6, 'weight': 3 },
+        {'x': 8, 'y': 7, 'weight': 4 },
+        {'x': 8, 'y': 8, 'weight': 2 }
+      ]
     </script>
   </body>
   <style>
@@ -226,6 +323,10 @@
     }
     .info {
       clear: both;
+    }
+    .message {
+      white-space: pre-wrap;
+      word-wrap: break-word;
     }
   </style>
 </html>
