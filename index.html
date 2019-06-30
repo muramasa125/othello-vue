@@ -20,7 +20,7 @@
             </b-nav-item-dropdown>
             <b-nav-item-dropdown v-bind:text="dispCOMLevel">
                 <b-dropdown-item href="#" v-on:click="changeCOMLevel(1)">1</b-dropdown-item>
-                <b-dropdown-item href="#" disabled>2</b-dropdown-item>
+                <b-dropdown-item href="#" v-on:click="changeCOMLevel(2)">2</b-dropdown-item>
                 <b-dropdown-item href="#" disabled>3</b-dropdown-item>
             </b-nav-item-dropdown>
           </b-navbar-nav>
@@ -212,11 +212,29 @@
                 }
               }
             }
-            let min = {'stone':0}
-            results.forEach(r => {              
-              if (min['stone'] === 0 || (r['stone'] < min['stone'])) { min = r }
+            let min = {'stone':0, 'weight': 0}
+            let score = []
+            const _this = this
+            results.forEach(r => { 
+              if (_this.comLevel === 1) {
+                if (min['stone'] === 0 || (r['stone'] < min['stone'])) { min = r }
+              } else if (_this.comLevel === 2) {
+                boardWeight.forEach(w => {
+                  if (r['x'] === w['x'] && r['y'] === w['y']) {
+                    r['weight'] = w['weight']
+                    console.log(r)
+                    if (min['stone'] === 0 || (min['stone'] + min['weight']) > r['stone'] + r['weight']) {
+                      min = r
+                      console.log('min')
+                      console.log(min)
+                    }
+                  }
+                })
+              }
             })
-            if (this.comLevel === 1) { return min }
+            console.log('return')
+            console.log(min)
+            return min
           }
         },
         created: function () {
@@ -227,70 +245,70 @@
       })
       // global const
       const boardWeight = [
-        {'x': 1, 'y': 1, 'weight': 2 },
-        {'x': 1, 'y': 2, 'weight': 4 },
-        {'x': 1, 'y': 3, 'weight': 3 },
-        {'x': 1, 'y': 4, 'weight': 3 },
-        {'x': 1, 'y': 5, 'weight': 3 },
-        {'x': 1, 'y': 6, 'weight': 3 },
-        {'x': 1, 'y': 7, 'weight': 4 },
-        {'x': 1, 'y': 8, 'weight': 2 },
-        {'x': 2, 'y': 1, 'weight': 4 },
-        {'x': 2, 'y': 2, 'weight': 4 },
-        {'x': 2, 'y': 3, 'weight': 3 },
-        {'x': 2, 'y': 4, 'weight': 3 },
-        {'x': 2, 'y': 5, 'weight': 3 },
-        {'x': 2, 'y': 6, 'weight': 3 },
-        {'x': 2, 'y': 7, 'weight': 4 },
-        {'x': 2, 'y': 8, 'weight': 4 },
-        {'x': 3, 'y': 1, 'weight': 3 },
-        {'x': 3, 'y': 2, 'weight': 3 },
+        {'x': 1, 'y': 1, 'weight': 5 },
+        {'x': 1, 'y': 2, 'weight': 50 },
+        {'x': 1, 'y': 3, 'weight': 10 },
+        {'x': 1, 'y': 4, 'weight': 10 },
+        {'x': 1, 'y': 5, 'weight': 10 },
+        {'x': 1, 'y': 6, 'weight': 10 },
+        {'x': 1, 'y': 7, 'weight': 50 },
+        {'x': 1, 'y': 8, 'weight': 5 },
+        {'x': 2, 'y': 1, 'weight': 50 },
+        {'x': 2, 'y': 2, 'weight': 50 },
+        {'x': 2, 'y': 3, 'weight': 10 },
+        {'x': 2, 'y': 4, 'weight': 10 },
+        {'x': 2, 'y': 5, 'weight': 10 },
+        {'x': 2, 'y': 6, 'weight': 10 },
+        {'x': 2, 'y': 7, 'weight': 50 },
+        {'x': 2, 'y': 8, 'weight': 50 },
+        {'x': 3, 'y': 1, 'weight': 10 },
+        {'x': 3, 'y': 2, 'weight': 10 },
         {'x': 3, 'y': 3, 'weight': 1 },
         {'x': 3, 'y': 4, 'weight': 1 },
         {'x': 3, 'y': 5, 'weight': 1 },
         {'x': 3, 'y': 6, 'weight': 1 },
-        {'x': 3, 'y': 7, 'weight': 3 },
-        {'x': 3, 'y': 8, 'weight': 3 },
-        {'x': 4, 'y': 1, 'weight': 3 },
-        {'x': 4, 'y': 2, 'weight': 3 },
+        {'x': 3, 'y': 7, 'weight': 10 },
+        {'x': 3, 'y': 8, 'weight': 10 },
+        {'x': 4, 'y': 1, 'weight': 10 },
+        {'x': 4, 'y': 2, 'weight': 10 },
         {'x': 4, 'y': 3, 'weight': 1 },
         {'x': 4, 'y': 4, 'weight': 1 },
         {'x': 4, 'y': 5, 'weight': 1 },
         {'x': 4, 'y': 6, 'weight': 1 },
-        {'x': 4, 'y': 7, 'weight': 3 },
-        {'x': 4, 'y': 8, 'weight': 3 },
-        {'x': 5, 'y': 1, 'weight': 3 },
-        {'x': 5, 'y': 2, 'weight': 3 },
+        {'x': 4, 'y': 7, 'weight': 10 },
+        {'x': 4, 'y': 8, 'weight': 10 },
+        {'x': 5, 'y': 1, 'weight': 10 },
+        {'x': 5, 'y': 2, 'weight': 10 },
         {'x': 5, 'y': 3, 'weight': 1 },
         {'x': 5, 'y': 4, 'weight': 1 },
         {'x': 5, 'y': 5, 'weight': 1 },
         {'x': 5, 'y': 6, 'weight': 1 },
-        {'x': 5, 'y': 7, 'weight': 3 },
-        {'x': 5, 'y': 8, 'weight': 3 },
-        {'x': 6, 'y': 1, 'weight': 3 },
-        {'x': 6, 'y': 2, 'weight': 3 },
+        {'x': 5, 'y': 7, 'weight': 10 },
+        {'x': 5, 'y': 8, 'weight': 10 },
+        {'x': 6, 'y': 1, 'weight': 10 },
+        {'x': 6, 'y': 2, 'weight': 10 },
         {'x': 6, 'y': 3, 'weight': 1 },
         {'x': 6, 'y': 4, 'weight': 1 },
         {'x': 6, 'y': 5, 'weight': 1 },
         {'x': 6, 'y': 6, 'weight': 1 },
-        {'x': 6, 'y': 7, 'weight': 3 },
-        {'x': 6, 'y': 8, 'weight': 3 },
-        {'x': 7, 'y': 1, 'weight': 4 },
-        {'x': 7, 'y': 2, 'weight': 4 },
-        {'x': 7, 'y': 3, 'weight': 3 },
-        {'x': 7, 'y': 4, 'weight': 3 },
-        {'x': 7, 'y': 5, 'weight': 3 },
-        {'x': 7, 'y': 6, 'weight': 3 },
-        {'x': 7, 'y': 7, 'weight': 4 },
-        {'x': 7, 'y': 8, 'weight': 4 },
-        {'x': 8, 'y': 1, 'weight': 2 },
-        {'x': 8, 'y': 2, 'weight': 4 },
-        {'x': 8, 'y': 3, 'weight': 3 },
-        {'x': 8, 'y': 4, 'weight': 3 },
-        {'x': 8, 'y': 5, 'weight': 3 },
-        {'x': 8, 'y': 6, 'weight': 3 },
-        {'x': 8, 'y': 7, 'weight': 4 },
-        {'x': 8, 'y': 8, 'weight': 2 }
+        {'x': 6, 'y': 7, 'weight': 10 },
+        {'x': 6, 'y': 8, 'weight': 10 },
+        {'x': 7, 'y': 1, 'weight': 50 },
+        {'x': 7, 'y': 2, 'weight': 50 },
+        {'x': 7, 'y': 3, 'weight': 10 },
+        {'x': 7, 'y': 4, 'weight': 10 },
+        {'x': 7, 'y': 5, 'weight': 10 },
+        {'x': 7, 'y': 6, 'weight': 10 },
+        {'x': 7, 'y': 7, 'weight': 50 },
+        {'x': 7, 'y': 8, 'weight': 50 },
+        {'x': 8, 'y': 1, 'weight': 5 },
+        {'x': 8, 'y': 2, 'weight': 50 },
+        {'x': 8, 'y': 3, 'weight': 10 },
+        {'x': 8, 'y': 4, 'weight': 10 },
+        {'x': 8, 'y': 5, 'weight': 10 },
+        {'x': 8, 'y': 6, 'weight': 10 },
+        {'x': 8, 'y': 7, 'weight': 50 },
+        {'x': 8, 'y': 8, 'weight': 5 }
       ]
     </script>
   </body>
